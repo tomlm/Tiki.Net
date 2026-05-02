@@ -51,7 +51,7 @@ string text = await tiki.ParseToStringAsync("document.pdf");
 using Tiki;
 using Tiki.Documents;
 
-var tiki = new Tiki.Tiki();
+var tiki = new TikiEngine();
 var result = await tiki.ParseAsync("report.docx");
 
 if (result is TikiDocument doc)
