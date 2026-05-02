@@ -4,12 +4,10 @@
 
 # Tiki.Net
 
-![Screenshot](https://raw.githubusercontent.com/tomlm/Tiki.Net/refs/heads/main/screenshot.gif)
-
-# Tiki.Net
-
 A lightweight .NET library for content detection and text extraction, loosely inspired by [Apache Tika](https://tika.apache.org/). Tiki.Net is a native C# implementation — 
 no IKVM, no Java, no bloat. It covers the most common file formats with strongly-typed results and a modern async API.
+
+![Screenshot](https://raw.githubusercontent.com/tomlm/Tiki.Net/refs/heads/main/screenshot.gif)
 
 ## Why Tiki.Net?
 
