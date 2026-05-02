@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<catalog>
+  <book id="1">
+    <title>Test Book One</title>
+    <author>Author A</author>
+    <price>29.99</price>
+  </book>
+  <book id="2">
+    <title>Test Book Two</title>
+    <author>Author B</author>
+    <price>39.99</price>
+  </book>
+</catalog>

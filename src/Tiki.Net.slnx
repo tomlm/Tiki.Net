@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path="../README.md" />
+    <File Path="Directory.Build.props" />
+  </Folder>
+  <Project Path="Tiki.Net.Parsers.Email/Tiki.Net.Parsers.Email.csproj" />
+  <Project Path="Tiki.Net.Parsers.Html/Tiki.Net.Parsers.Html.csproj" />
+  <Project Path="Tiki.Net.Parsers.Image/Tiki.Net.Parsers.Image.csproj" />
+  <Project Path="Tiki.Net.Parsers.Media/Tiki.Net.Parsers.Media.csproj" />
+  <Project Path="Tiki.Net.Parsers.Office/Tiki.Net.Parsers.Office.csproj" />
+  <Project Path="Tiki.Net.Parsers.Pdf/Tiki.Net.Parsers.Pdf.csproj" />
+  <Project Path="Tiki.Net.Parsers.Rtf/Tiki.Net.Parsers.Rtf.csproj" />
+  <Project Path="Tiki.Net.Tests/Tiki.Net.Tests.csproj" />
+  <Project Path="Tiki.Net/Tiki.Net.csproj" />
+</Solution>

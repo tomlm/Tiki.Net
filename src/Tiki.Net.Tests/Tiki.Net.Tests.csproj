@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.4" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.0" />
+    <PackageReference Include="NUnit" Version="4.3.2" />
+    <PackageReference Include="NUnit.Analyzers" Version="4.7.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Tiki.Net\Tiki.Net.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Pdf\Tiki.Net.Parsers.Pdf.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Office\Tiki.Net.Parsers.Office.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Html\Tiki.Net.Parsers.Html.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Email\Tiki.Net.Parsers.Email.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Image\Tiki.Net.Parsers.Image.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Rtf\Tiki.Net.Parsers.Rtf.csproj" />
+    <ProjectReference Include="..\Tiki.Net.Parsers.Media\Tiki.Net.Parsers.Media.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="NUnit.Framework" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="TestData\**\*" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+</Project>

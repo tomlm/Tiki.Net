@@ -1,0 +1,3 @@
+Hello, this is a sample text file for testing Tika.Net.
+It contains multiple lines of text content.
+The quick brown fox jumps over the lazy dog.
