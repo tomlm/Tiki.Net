@@ -11,25 +11,25 @@ on:
     branches: [ "main" ]
     paths:
     - src/**
-    
+
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Tika.Net.slnx
+    - name: Checkout
       uses: actions/checkout@v4
 
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 10.0.x
+        dotnet-version: 8.0.x
 
     - name: Restore dependencies
-      run: dotnet restore src/Tika.Net.slnx
+      run: dotnet restore src/Tiki.Net.slnx
 
     - name: Build
-      run: dotnet build --no-restore src/Tika.Net.slnx --property WarningLevel=0
-      
+      run: dotnet build --no-restore src/Tiki.Net.slnx --property WarningLevel=0
+
     - name: Test
-      run: dotnet test --no-build --verbosity normal src/Tika.Net.slnx
+      run: dotnet test --no-build --verbosity normal src/Tiki.Net.slnx
