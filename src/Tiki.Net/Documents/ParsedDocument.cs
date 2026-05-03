@@ -9,6 +9,21 @@ namespace Tiki.Documents;
 public class TikiFile
 {
     /// <summary>
+    /// Path to the folder containing the file, if applicable. 
+    /// </summary>
+    public string? FolderPath { get; set; }
+
+    /// <summary>
+    /// Full path to the file, URL, or other identifier for the source of the content.
+    /// </summary>
+    public string? Path { get; set; }
+
+    /// <summary>
+    /// The name of the file (extracted from the path or URL if not explicitly provided).
+    /// </summary>
+    public string? Name { get; set; }
+
+    /// <summary>
     /// The extracted text content from the file.
     /// </summary>
     public string Content { get; init; } = string.Empty;

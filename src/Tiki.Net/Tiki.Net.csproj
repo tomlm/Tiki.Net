@@ -4,6 +4,8 @@
     <RootNamespace>Tiki</RootNamespace>
     <Description>Lightweight .NET content detection and text extraction, inspired by Apache Tika</Description>
     <PackageTags>tiki;tika;parser;text-extraction;metadata;mime;content-detection</PackageTags>
+    <Version>1.0.1</Version>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
