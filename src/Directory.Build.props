@@ -9,10 +9,10 @@
     <Company>Iciclecreek</Company>
     <Authors>Tom Laird-McConnell</Authors>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/tomlm/Tika.Net</PackageProjectUrl>
+    <PackageProjectUrl>https://github.com/tomlm/Tiki.Net</PackageProjectUrl>
     <PackageIcon>icon.png</PackageIcon>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryUrl>https://github.com/tomlm/Tika.Net</RepositoryUrl>
+    <RepositoryUrl>https://github.com/tomlm/Tiki.Net</RepositoryUrl>
     <Copyright>Tom Laird-McConnell All Rights Reserved</Copyright>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

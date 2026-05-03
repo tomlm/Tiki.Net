@@ -3,11 +3,11 @@
   <PropertyGroup>
     <RootNamespace>Tiki.Parsers.Html</RootNamespace>
     <Description>HTML parser for Tiki.Net using AngleSharp</Description>
-    <PackageTags>tika;parser;html;text-extraction</PackageTags>
+    <PackageTags>tiki;parser;html;text-extraction</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 

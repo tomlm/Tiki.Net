@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <RootNamespace>Tiki.Parsers.Image</RootNamespace>
-    <Description>Image metadata parser for Tiki.Net (EXIF, IPTC, XMP)</Description>
-    <PackageTags>tika;parser;image;exif;metadata;photo</PackageTags>
+    <Description>Image EXIF/IPTC metadata parser for Tiki.Net</Description>
+    <PackageTags>tiki;parser;image;exif;metadata;photo</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 

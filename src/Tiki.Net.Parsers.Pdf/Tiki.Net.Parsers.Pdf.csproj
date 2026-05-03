@@ -3,11 +3,11 @@
   <PropertyGroup>
     <RootNamespace>Tiki.Parsers.Pdf</RootNamespace>
     <Description>PDF parser for Tiki.Net using PdfPig</Description>
-    <PackageTags>tika;parser;pdf;text-extraction</PackageTags>
+    <PackageTags>tiki;parser;pdf;text-extraction</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 

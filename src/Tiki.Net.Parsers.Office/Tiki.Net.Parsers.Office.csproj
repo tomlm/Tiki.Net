@@ -2,12 +2,12 @@
 
   <PropertyGroup>
     <RootNamespace>Tiki.Parsers.Office</RootNamespace>
-    <Description>Office document parser for Tiki.Net (DOCX, XLSX, PPTX via Open XML SDK)</Description>
-    <PackageTags>tika;parser;office;docx;xlsx;pptx</PackageTags>
+    <Description>Office document parser for Tiki.Net (DOCX, XLSX, PPTX, ODT)</Description>
+    <PackageTags>tiki;parser;office;docx;xlsx;pptx;odt</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 

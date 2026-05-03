@@ -1,13 +1,13 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <RootNamespace>Tiki.Parsers.Email</RootNamespace>
-    <Description>Email parser for Tiki.Net (EML/RFC822 format)</Description>
-    <PackageTags>tika;parser;email;eml;mime</PackageTags>
+    <Description>Email (EML/RFC822) parser for Tiki.Net</Description>
+    <PackageTags>tiki;parser;email;eml;mime</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
+    <None Include="README.md" Pack="true" PackagePath="" />
     <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 

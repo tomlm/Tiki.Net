@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <RootNamespace>Tiki</RootNamespace>
-    <Description>A .NET port of Apache Tika - content detection and extraction framework</Description>
-    <PackageTags>tika;parser;text-extraction;metadata;mime;content-detection</PackageTags>
+    <Description>Lightweight .NET content detection and text extraction, inspired by Apache Tika</Description>
+    <PackageTags>tiki;tika;parser;text-extraction;metadata;mime;content-detection</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
