@@ -29,14 +29,8 @@
 
   <ItemGroup>
     <None Include="README.md" Pack="true" PackagePath="" />
-    <None Include="../../icon.png" Pack="true" PackagePath="" />
   </ItemGroup>
 
-
-  <ItemGroup>
-    <None Include="../../README.md" Pack="true" PackagePath="" />
-    <None Include="../../icon.png" Pack="true" PackagePath="" />
-  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Tiki.Net\Tiki.Net.csproj" />
