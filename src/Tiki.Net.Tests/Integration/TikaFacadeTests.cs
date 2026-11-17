@@ -167,6 +167,13 @@ public class TikiFacadeTests
         var result = await _tika.ParseAsync(stream, default);
 
         Assert.That(result.MediaType, Is.EqualTo(MediaType.TextPlain));
+
+        // Both overloads give the same result for this call, so check the binding itself. (An expression
+        // tree cannot omit an optional argument, so this would not compile if it bound to the fileName
+        // overload, whose token is optional.)
+        System.Linq.Expressions.Expression<Func<global::Tiki.TikiEngine, Stream, Task<TikiFile>>> call = (tika, s) => tika.ParseAsync(s, default);
+        var parameters = ((System.Linq.Expressions.MethodCallExpression)call.Body).Method.GetParameters();
+        Assert.That(parameters.Select(p => p.ParameterType), Is.EqualTo(new[] { typeof(Stream), typeof(CancellationToken) }));
     }
 
     [Test]
@@ -196,11 +203,13 @@ public class TikiFacadeTests
     [Test]
     public async Task ParseToStringAsync_StreamWithFileName_ReturnsContent()
     {
-        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+        // DOCX bytes are only a ZIP until the name says which format is inside; without the name this
+        // throws UnsupportedFormatException, so the test fails if the overload drops the name.
+        using var stream = await OpenTestDataAsync("sample.docx");
 
-        var content = await _tika.ParseToStringAsync(stream, "people.csv");
+        var content = await _tika.ParseToStringAsync(stream, "attachment.docx");
 
-        Assert.That(content, Does.Contain("Bob,25"));
+        Assert.That(content, Does.Contain("sample Word document"));
     }
 
     // A name that disagrees with the content. Bytes that identify a format win; the name decides only
