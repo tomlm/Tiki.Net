@@ -152,6 +152,18 @@ using var stream = File.OpenRead("large-document.pdf");
 var result = await tiki.ParseAsync(stream, cts.Token);
 ```
 
+A stream has no file name, so only content-based (magic bytes) detection is available. If you know the name
+(e.g. a mail attachment or an upload), pass it so extension-based detection works too — formats such as CSV,
+JSON or DOCX cannot be told apart from their bytes alone:
+
+```csharp
+using var stream = new MemoryStream(attachmentBytes);
+
+var result = await tiki.ParseAsync(stream, "report.csv", cts.Token);   // TikiData, text/csv
+var text = await tiki.ParseToStringAsync(stream, "report.csv");
+var mediaType = await tiki.DetectAsync(stream, "report.csv");
+```
+
 ## Result Type Hierarchy
 
 ```

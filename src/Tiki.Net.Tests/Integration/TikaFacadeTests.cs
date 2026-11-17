@@ -120,4 +120,125 @@ public class TikiFacadeTests
 
         Assert.That(result.Content, Does.Contain("Stream content"));
     }
+
+    private const string CsvText = "name,age\nAlice,30\nBob,25\n";
+    private static readonly MediaType s_csv = MediaType.Parse("text/csv");
+
+    [Test]
+    public async Task ParseAsync_CsvStreamWithoutFileName_ReturnsPlainText()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var result = await _tika.ParseAsync(stream);
+
+        Assert.That(result, Is.Not.InstanceOf<TikiData>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.TextPlain));
+    }
+
+    [Test]
+    public async Task ParseAsync_CsvStreamWithFileName_ReturnsCsvData()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var result = await _tika.ParseAsync(stream, "people.csv");
+
+        Assert.That(result, Is.InstanceOf<TikiData>());
+        Assert.That(result.MediaType, Is.EqualTo(s_csv));
+        Assert.That(result.Content, Does.Contain("Alice,30"));
+    }
+
+    [Test]
+    public async Task ParseAsync_StreamWithNullFileName_BehavesLikeStreamOnly()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var result = await _tika.ParseAsync(stream, null);
+
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.TextPlain));
+        Assert.That(result.Content, Does.Contain("Alice,30"));
+    }
+
+    [Test]
+    public async Task ParseAsync_StreamWithDefaultLiteral_StillBindsToCancellationTokenOverload()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        // Existing call shape; must keep compiling (not ambiguous with the fileName overload).
+        var result = await _tika.ParseAsync(stream, default);
+
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.TextPlain));
+    }
+
+    [Test]
+    public async Task ParseAsync_DocxStreamWithFileName_ReturnsDocument()
+    {
+        var filePath = Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample.docx");
+        using var stream = new MemoryStream(await File.ReadAllBytesAsync(filePath));
+
+        var result = await _tika.ParseAsync(stream, "attachment.docx");
+
+        Assert.That(result, Is.InstanceOf<TikiDocument>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.Docx));
+    }
+
+    [Test]
+    public async Task ParseAsync_NonSeekableStreamWithFileName_ReturnsCsvData()
+    {
+        using var inner = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+        using var stream = new System.IO.Compression.DeflateStream(Compress(inner.ToArray()), System.IO.Compression.CompressionMode.Decompress);
+
+        var result = await _tika.ParseAsync(stream, "people.csv");
+
+        Assert.That(result, Is.InstanceOf<TikiData>());
+        Assert.That(result.MediaType, Is.EqualTo(s_csv));
+    }
+
+    [Test]
+    public async Task ParseToStringAsync_StreamWithFileName_ReturnsContent()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var content = await _tika.ParseToStringAsync(stream, "people.csv");
+
+        Assert.That(content, Does.Contain("Bob,25"));
+    }
+
+    [Test]
+    public async Task DetectAsync_CsvStreamWithoutFileName_ReturnsTextPlain()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var mediaType = await _tika.DetectAsync(stream);
+
+        Assert.That(mediaType, Is.EqualTo(MediaType.TextPlain));
+    }
+
+    [Test]
+    public async Task DetectAsync_CsvStreamWithFileName_ReturnsTextCsv()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes(CsvText));
+
+        var mediaType = await _tika.DetectAsync(stream, "people.csv");
+
+        Assert.That(mediaType, Is.EqualTo(s_csv));
+    }
+
+    [Test]
+    public async Task DetectAsync_JsonStreamWithFileName_ReturnsApplicationJson()
+    {
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("{\"a\": 1}"));
+
+        var mediaType = await _tika.DetectAsync(stream, "data.json");
+
+        Assert.That(mediaType, Is.EqualTo(MediaType.ApplicationJson));
+    }
+
+    private static MemoryStream Compress(byte[] data)
+    {
+        var output = new MemoryStream();
+        using (var deflate = new System.IO.Compression.DeflateStream(output, System.IO.Compression.CompressionMode.Compress, leaveOpen: true))
+            deflate.Write(data, 0, data.Length);
+        output.Position = 0;
+        return output;
+    }
 }
