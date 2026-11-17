@@ -294,6 +294,36 @@ public class TikiFacadeTests
         Assert.That(result.MediaType, Is.EqualTo(MediaType.ApplicationJson));
     }
 
+    // A name TagLib cannot use (unknown or no extension) must not break a media parse that works without one.
+
+    [TestCase("voicemail.dat")]
+    [TestCase("voicemail")]
+    [TestCase("")]
+    [TestCase("voicemail.wav")]
+    public async Task ParseAsync_Mp3StreamWithUnhelpfulFileName_ReturnsMusic(string fileName)
+    {
+        using var stream = await OpenTestDataAsync("sample.mp3");
+
+        var result = await _tika.ParseAsync(stream, fileName);
+
+        Assert.That(result, Is.InstanceOf<TikiMusic>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.AudioMpeg));
+        Assert.That(result.Title, Is.EqualTo("Sample Song"));
+    }
+
+    [TestCase("clip.bin")]
+    [TestCase("clip")]
+    [TestCase("")]
+    public async Task ParseAsync_Mp4StreamWithUnhelpfulFileName_ReturnsVideo(string fileName)
+    {
+        using var stream = await OpenTestDataAsync("sample.mp4");
+
+        var result = await _tika.ParseAsync(stream, fileName);
+
+        Assert.That(result, Is.InstanceOf<TikiVideo>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.VideoMp4));
+    }
+
     [Test]
     public async Task DetectAsync_CsvStreamWithoutFileName_ReturnsTextPlain()
     {

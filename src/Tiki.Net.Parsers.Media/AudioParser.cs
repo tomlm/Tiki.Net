@@ -18,13 +18,23 @@ public sealed class AudioParser : AbstractParser
         MediaType.AudioMp4
     };
 
+    // The extensions TagLib reads as each type; the first is used when the file name has none of them
+    private static readonly Dictionary<MediaType, string[]> s_extensions = new()
+    {
+        [MediaType.AudioMpeg] = new[] { ".mp3" },
+        [MediaType.AudioFlac] = new[] { ".flac" },
+        [MediaType.AudioWav] = new[] { ".wav" },
+        [MediaType.AudioOgg] = new[] { ".ogg", ".oga", ".opus" },
+        [MediaType.AudioMp4] = new[] { ".m4a", ".aac", ".m4b" }
+    };
+
     public override IReadOnlySet<MediaType> SupportedTypes => s_supportedTypes;
 
     public override Task<Documents.TikiFile> ParseAsync(Stream stream, ParseContext? context = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var fileName = context?.FileName ?? "audio.mp3";
+            var fileName = TagLibFileName.Resolve(context, s_extensions, "audio.mp3");
             using var file = TagLib.File.Create(new StreamFileAbstraction(fileName, stream));
 
             var tag = file.Tag;
