@@ -53,6 +53,11 @@ public sealed class AutoDetectParser : IParser
         var parser = _compositeParser.GetParser(mediaType)
             ?? throw new UnsupportedFormatException($"No parser available for media type: {mediaType}");
 
+        // Tell the parser what was detected. The file name alone can mislead a parser that reads it
+        // (an attachment called "voicemail.dat"), and the detected type is what the parser was chosen for.
+        // It goes in a copy: the caller's context may be reused for, or shared with, other parses.
+        context = context?.With(mediaType);
+
         return await parser.ParseAsync(stream, context, cancellationToken).ConfigureAwait(false);
     }
 }

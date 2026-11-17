@@ -19,19 +19,30 @@ public sealed class VideoParser : AbstractParser
         MediaType.VideoWmv
     };
 
+    // The extensions TagLib reads as each type; the first is used when the file name has none of them
+    private static readonly Dictionary<MediaType, string[]> s_extensions = new()
+    {
+        [MediaType.VideoMp4] = new[] { ".mp4", ".m4v" },
+        [MediaType.VideoAvi] = new[] { ".avi" },
+        [MediaType.VideoMkv] = new[] { ".mkv" },
+        [MediaType.VideoMov] = new[] { ".mov" },
+        [MediaType.VideoWebm] = new[] { ".webm" },
+        [MediaType.VideoWmv] = new[] { ".wmv" }
+    };
+
     public override IReadOnlySet<MediaType> SupportedTypes => s_supportedTypes;
 
     public override Task<Documents.TikiFile> ParseAsync(Stream stream, ParseContext? context = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            var fileName = context?.FileName ?? "video.mp4";
+            var fileName = TagLibFileName.Resolve(context, s_extensions, "video.mp4");
             using var file = TagLib.File.Create(new StreamFileAbstraction(fileName, stream));
 
             var tag = file.Tag;
             var properties = file.Properties;
 
-            var mediaType = DetectVideoType(file, context?.FileName);
+            var mediaType = DetectVideoType(file, fileName);
 
             return Task.FromResult<Documents.TikiFile>(new TikiVideo
             {

@@ -93,8 +93,9 @@ public sealed class MagicBytesDetector : IDetector
             new(new byte[] { 0x47, 0x49, 0x46, 0x38, 0x37, 0x61 }, MediaType.ImageGif), // GIF87a
             new(new byte[] { 0x47, 0x49, 0x46, 0x38, 0x39, 0x61 }, MediaType.ImageGif), // GIF89a
 
-            // BMP
-            new(new byte[] { 0x42, 0x4D }, MediaType.ImageBmp),
+            // BMP. "BM" alone also opens ordinary text ("BMI,Age,..."), so require the zero high byte
+            // of the DIB header size (12 to 124) that follows the 14-byte file header.
+            new(new byte[] { 0x42, 0x4D }, 15, new byte[] { 0x00 }, MediaType.ImageBmp),
 
             // TIFF
             new(new byte[] { 0x49, 0x49, 0x2A, 0x00 }, MediaType.ImageTiff), // Little-endian
@@ -103,8 +104,9 @@ public sealed class MagicBytesDetector : IDetector
             // WebP
             new(new byte[] { 0x52, 0x49, 0x46, 0x46 }, 8, new byte[] { 0x57, 0x45, 0x42, 0x50 }, MediaType.ImageWebp), // RIFF....WEBP
 
-            // MP3 (ID3 tag)
-            new(new byte[] { 0x49, 0x44, 0x33 }, MediaType.AudioMpeg), // ID3
+            // MP3 (ID3 tag). "ID3" alone also opens ordinary text, so require the tag's revision byte,
+            // which is zero in every ID3v2 version.
+            new(new byte[] { 0x49, 0x44, 0x33 }, 4, new byte[] { 0x00 }, MediaType.AudioMpeg), // ID3
             new(new byte[] { 0xFF, 0xFB }, MediaType.AudioMpeg), // MPEG frame sync
             new(new byte[] { 0xFF, 0xF3 }, MediaType.AudioMpeg),
             new(new byte[] { 0xFF, 0xF2 }, MediaType.AudioMpeg),
@@ -121,8 +123,9 @@ public sealed class MagicBytesDetector : IDetector
             // AVI
             new(new byte[] { 0x52, 0x49, 0x46, 0x46 }, 8, new byte[] { 0x41, 0x56, 0x49, 0x20 }, MediaType.VideoAvi), // RIFF....AVI
 
-            // MP4/MOV (ftyp box)
-            new(4, new byte[] { 0x66, 0x74, 0x79, 0x70 }, MediaType.VideoMp4), // ....ftyp
+            // MP4/MOV (ftyp box). "ftyp" at offset 4 also occurs in ordinary text ("See ftyp boxes"), so
+            // require the zero high bytes of the box's big-endian size, which is far below 64 KB.
+            new(new byte[] { 0x00, 0x00 }, 4, new byte[] { 0x66, 0x74, 0x79, 0x70 }, MediaType.VideoMp4), // 00 00 .. .. ftyp
 
             // MKV/WebM
             new(new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }, MediaType.VideoMkv), // EBML
