@@ -1,5 +1,7 @@
 using Tiki.Documents;
 using Tiki.Mime;
+using Tiki.Parser;
+using Tiki.Parsers.Media;
 
 namespace Tiki.Tests.Integration;
 
@@ -361,6 +363,71 @@ public class TikiFacadeTests
         var mediaType = await _tika.DetectAsync(stream, "data.json");
 
         Assert.That(mediaType, Is.EqualTo(MediaType.ApplicationJson));
+    }
+
+    // A context the caller made is the caller's: what one parse detects must not reach another parse that uses it.
+
+    [Test]
+    public async Task ParseAsync_ReusedContext_DoesNotCarryDetectedTypeIntoNextParse()
+    {
+        var context = new ParseContext();
+        using (var wav = new MemoryStream(BuildWav()))
+            await global::Tiki.TikiConfig.Default.Parser.ParseAsync(wav, context);
+
+        using var mp3 = await OpenTestDataAsync("sample.mp3");
+        var result = await new AudioParser().ParseAsync(mp3, context);
+
+        Assert.That(context.Get<MediaType>(), Is.Null);
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.AudioMpeg));
+        Assert.That(result.Title, Is.EqualTo("Sample Song"));
+    }
+
+    [Test]
+    public async Task ParseAsync_SharedContextAcrossParallelParses_ParsesEach()
+    {
+        var mp3Bytes = await File.ReadAllBytesAsync(Path.Combine(TestContext.CurrentContext.TestDirectory, "TestData", "sample.mp3"));
+        var wavBytes = BuildWav();
+        var context = new ParseContext();
+        var failures = 0;
+
+        await Parallel.ForEachAsync(Enumerable.Range(0, 20_000), new ParallelOptions { MaxDegreeOfParallelism = 8 }, async (i, ct) =>
+        {
+            using var stream = new MemoryStream(i % 2 == 0 ? mp3Bytes : wavBytes);
+            try
+            {
+                await global::Tiki.TikiConfig.Default.Parser.ParseAsync(stream, context, ct);
+            }
+            catch (ParseException)
+            {
+                Interlocked.Increment(ref failures);
+            }
+        });
+
+        Assert.That(failures, Is.Zero);
+    }
+
+    // A WAV of a few silent 16-bit mono samples
+    private static byte[] BuildWav()
+    {
+        var output = new MemoryStream();
+        using (var writer = new BinaryWriter(output, System.Text.Encoding.ASCII, leaveOpen: true))
+        {
+            const int dataLength = 16;
+            writer.Write("RIFF"u8);
+            writer.Write(36 + dataLength);
+            writer.Write("WAVEfmt "u8);
+            writer.Write(16);
+            writer.Write((short)1);     // PCM
+            writer.Write((short)1);     // mono
+            writer.Write(8000);         // sample rate
+            writer.Write(16000);        // byte rate
+            writer.Write((short)2);     // block align
+            writer.Write((short)16);    // bits per sample
+            writer.Write("data"u8);
+            writer.Write(dataLength);
+            writer.Write(new byte[dataLength]);
+        }
+        return output.ToArray();
     }
 
     private static async Task<MemoryStream> OpenTestDataAsync(string name)
