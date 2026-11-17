@@ -406,6 +406,36 @@ public class TikiFacadeTests
         Assert.That(failures, Is.Zero);
     }
 
+    // An ID3v2 tag says nothing about the audio after it, so that audio decides, not the name.
+
+    [TestCase("song.flac")]
+    [TestCase("song.m4a")]
+    [TestCase("song.aac")]
+    public async Task ParseAsync_Id3TaggedMp3NamedAsOtherAudio_ReturnsMp3(string fileName)
+    {
+        using var stream = await OpenTestDataAsync("sample.mp3");
+
+        var result = await _tika.ParseAsync(stream, fileName);
+
+        Assert.That(result, Is.InstanceOf<TikiMusic>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.AudioMpeg));
+        Assert.That(result.Title, Is.EqualTo("Sample Song"));
+    }
+
+    [TestCase("song.flac")]
+    [TestCase("song.mp3")]
+    [TestCase("")]
+    public async Task ParseAsync_Id3TaggedFlac_ReturnsFlac(string fileName)
+    {
+        using var stream = new MemoryStream(BuildId3TaggedFlac());
+
+        var result = await _tika.ParseAsync(stream, fileName);
+
+        Assert.That(result, Is.InstanceOf<TikiMusic>());
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.AudioFlac));
+        Assert.That(result.Title, Is.EqualTo("Flac Song"));
+    }
+
     // A WAV of a few silent 16-bit mono samples
     private static byte[] BuildWav()
     {
@@ -426,6 +456,35 @@ public class TikiFacadeTests
             writer.Write("data"u8);
             writer.Write(dataLength);
             writer.Write(new byte[dataLength]);
+        }
+        return output.ToArray();
+    }
+
+    // An empty ID3v2.3 tag, then a FLAC stream with no audio frames: STREAMINFO and a Vorbis comment with a title
+    private static byte[] BuildId3TaggedFlac()
+    {
+        var comment = "TITLE=Flac Song"u8.ToArray();
+        var vendor = "Tiki"u8.ToArray();
+
+        var output = new MemoryStream();
+        using (var writer = new BinaryWriter(output, System.Text.Encoding.ASCII, leaveOpen: true))
+        {
+            writer.Write(new byte[] { 0x49, 0x44, 0x33, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 });
+            writer.Write("fLaC"u8);
+
+            // STREAMINFO: block size 4096, 44.1 kHz, stereo, 16-bit, no samples, no MD5
+            writer.Write(new byte[] { 0x00, 0x00, 0x00, 0x22 });
+            writer.Write(new byte[] { 0x10, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x0A, 0xC4, 0x42, 0xF0, 0x00, 0x00, 0x00, 0x00 });
+            writer.Write(new byte[16]);
+
+            // VORBIS_COMMENT, the last metadata block; its fields are little-endian
+            var length = 4 + vendor.Length + 4 + 4 + comment.Length;
+            writer.Write(new byte[] { 0x84, 0x00, 0x00, (byte)length });
+            writer.Write(vendor.Length);
+            writer.Write(vendor);
+            writer.Write(1);
+            writer.Write(comment.Length);
+            writer.Write(comment);
         }
         return output.ToArray();
     }

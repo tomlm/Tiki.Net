@@ -51,7 +51,8 @@ internal sealed class DefaultDetector : IDetector
         // EBML opens WebM as well as Matroska
         [MediaType.VideoMkv] = new[] { MediaType.VideoWebm },
 
-        // An ID3v2 tag can precede FLAC and AAC streams as well as MP3
+        // An ID3v2 tag can precede FLAC and AAC streams as well as MP3. The audio after the tag decides
+        // when it can be read (see AudioAfterTagAsync); this applies only when it cannot.
         [MediaType.AudioMpeg] = new[] { MediaType.AudioFlac, MediaType.AudioMp4 }
     };
 
@@ -67,6 +68,12 @@ internal sealed class DefaultDetector : IDetector
         {
             var byName = await _nameDetector.DetectAsync(null, fileName, cancellationToken).ConfigureAwait(false);
             var byContent = await _contentDetector.DetectAsync(stream, fileName, cancellationToken).ConfigureAwait(false);
+
+            // The MP3 signatures include the ID3v2 tag, which FLAC and AAC streams can open with too.
+            // Where the audio itself can be identified, it wins over the name like any other signature.
+            if (byContent == MediaType.AudioMpeg &&
+                await AudioAfterTagAsync(seekable, position, cancellationToken).ConfigureAwait(false) is { } audio)
+                return audio;
 
             // Only one of them has an answer, or they agree
             if (byContent == MediaType.OctetStream)
@@ -106,6 +113,43 @@ internal sealed class DefaultDetector : IDetector
             if (seekable != null)
                 seekable.Position = position;
         }
+    }
+
+    // Identifies the audio that content with an MP3 signature holds: what follows the ID3v2 tag, or the
+    // MPEG frame the content opens with. Null when that cannot be told: the stream cannot seek, the tag
+    // runs past the end, or the tag is followed by something else (ADTS AAC, which Tiki types as
+    // audio/mp4 along with M4A, so only the name can say which TagLib reader fits; or padding).
+    private static async Task<MediaType?> AudioAfterTagAsync(Stream? stream, long position, CancellationToken cancellationToken)
+    {
+        if (stream == null)
+            return null;
+
+        stream.Position = position;
+        var header = new byte[10];
+        if (await stream.ReadAtLeastAsync(header, header.Length, throwOnEndOfStream: false, cancellationToken).ConfigureAwait(false) < 4)
+            return null;
+
+        var start = position;
+        if (header[0] == 'I' && header[1] == 'D' && header[2] == '3')
+        {
+            // Bytes 6-9 hold the tag size as a syncsafe integer (7 bits a byte), not counting the 10-byte
+            // header, or the 10-byte footer that flag bit 4 of byte 5 adds
+            var size = (header[6] & 0x7F) << 21 | (header[7] & 0x7F) << 14 | (header[8] & 0x7F) << 7 | (header[9] & 0x7F);
+            start += 10 + size + ((header[5] & 0x10) != 0 ? 10 : 0);
+
+            stream.Position = start;
+            if (await stream.ReadAtLeastAsync(header.AsMemory(0, 4), 4, throwOnEndOfStream: false, cancellationToken).ConfigureAwait(false) < 4)
+                return null;
+        }
+
+        if (header[0] == 'f' && header[1] == 'L' && header[2] == 'a' && header[3] == 'C')
+            return MediaType.AudioFlac;
+
+        // An MPEG audio frame: 11 sync bits, then a version and a layer. ADTS has the same sync and layer 0.
+        if (header[0] == 0xFF && (header[1] & 0xE0) == 0xE0 && (header[1] & 0x06) != 0)
+            return MediaType.AudioMpeg;
+
+        return null;
     }
 
     private static async Task<bool> IsTextAsync(Stream? stream, long position, CancellationToken cancellationToken)
