@@ -123,8 +123,9 @@ public sealed class MagicBytesDetector : IDetector
             // AVI
             new(new byte[] { 0x52, 0x49, 0x46, 0x46 }, 8, new byte[] { 0x41, 0x56, 0x49, 0x20 }, MediaType.VideoAvi), // RIFF....AVI
 
-            // MP4/MOV (ftyp box)
-            new(4, new byte[] { 0x66, 0x74, 0x79, 0x70 }, MediaType.VideoMp4), // ....ftyp
+            // MP4/MOV (ftyp box). "ftyp" at offset 4 also occurs in ordinary text ("See ftyp boxes"), so
+            // require the zero high bytes of the box's big-endian size, which is far below 64 KB.
+            new(new byte[] { 0x00, 0x00 }, 4, new byte[] { 0x66, 0x74, 0x79, 0x70 }, MediaType.VideoMp4), // 00 00 .. .. ftyp
 
             // MKV/WebM
             new(new byte[] { 0x1A, 0x45, 0xDF, 0xA3 }, MediaType.VideoMkv), // EBML

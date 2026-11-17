@@ -436,6 +436,18 @@ public class TikiFacadeTests
         Assert.That(result.Title, Is.EqualTo("Flac Song"));
     }
 
+    [Test]
+    public async Task ParseAsync_TextWithFtypAtOffsetFour_ReturnsText()
+    {
+        // "ftyp" at bytes 4-7 opens MP4 files, but in an MP4 it follows a small box size, not text.
+        using var stream = new MemoryStream(System.Text.Encoding.UTF8.GetBytes("See ftyp boxes in the MP4 spec.\n"));
+
+        var result = await _tika.ParseAsync(stream, "notes.txt");
+
+        Assert.That(result.MediaType, Is.EqualTo(MediaType.TextPlain));
+        Assert.That(result.Content, Does.Contain("See ftyp boxes"));
+    }
+
     // A WAV of a few silent 16-bit mono samples
     private static byte[] BuildWav()
     {
