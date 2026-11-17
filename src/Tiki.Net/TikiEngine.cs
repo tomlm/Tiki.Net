@@ -36,9 +36,16 @@ public sealed class TikiEngine
     }
 
     /// <summary>
-    /// Parses a stream and returns a strongly-typed result, using the file name
-    /// (if any) as a hint for extension-based detection.
+    /// Parses a stream and returns a strongly-typed result, using the file name (if any) as a hint.
     /// </summary>
+    /// <remarks>
+    /// The content is examined first. The name decides the type only when the content cannot:
+    /// text is read as CSV, JSON, XML and so on according to its extension, and a ZIP container
+    /// as DOCX, XLSX and so on. Where the content has a signature of its own (PDF, JPEG, MP3, ...),
+    /// or opens as an HTML document, that wins over an extension that disagrees, and text is not
+    /// handed to a binary parser because of its name. A name with an unknown extension, or none,
+    /// is treated as no name.
+    /// </remarks>
     public async Task<Documents.TikiFile> ParseAsync(Stream stream, string? fileName, CancellationToken cancellationToken = default)
     {
         await using var tikaStream = await TikiStream.CreateAsync(stream, cancellationToken).ConfigureAwait(false);
@@ -74,8 +81,9 @@ public sealed class TikiEngine
     }
 
     /// <summary>
-    /// Parses a stream and returns just the extracted text content, using the file name
-    /// (if any) as a hint for extension-based detection.
+    /// Parses a stream and returns just the extracted text content, using the file name (if any)
+    /// as a hint. See <see cref="ParseAsync(Stream, string, CancellationToken)"/> for how the
+    /// name and the content are weighed.
     /// </summary>
     public async Task<string> ParseToStringAsync(Stream stream, string? fileName, CancellationToken cancellationToken = default)
     {
@@ -101,8 +109,10 @@ public sealed class TikiEngine
     }
 
     /// <summary>
-    /// Detects the media type of a stream, using the file name (if any) as a hint
-    /// for extension-based detection.
+    /// Detects the media type of a stream, using the file name (if any) as a hint. The content
+    /// is examined first; the name decides only what the content cannot (which text format,
+    /// which format inside a ZIP container), and never overrides a signature it disagrees with.
+    /// See <see cref="ParseAsync(Stream, string, CancellationToken)"/>.
     /// </summary>
     public async Task<MediaType> DetectAsync(Stream stream, string? fileName, CancellationToken cancellationToken = default)
     {

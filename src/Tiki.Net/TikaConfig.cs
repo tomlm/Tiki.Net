@@ -131,8 +131,9 @@ public sealed class TikiConfig
             // Set up detectors
             if (_detectors.Count == 0)
             {
-                _detectors.Add(new ExtensionDetector());
-                _detectors.Add(new MagicBytesDetector());
+                // Content first, with the file name as a hint. Listing ExtensionDetector ahead of
+                // MagicBytesDetector here would let a wrong extension hide what the bytes say.
+                _detectors.Add(new DefaultDetector());
             }
 
             var detector = new CompositeDetector(_detectors);
