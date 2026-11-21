@@ -51,11 +51,14 @@ public sealed class PdfParser : AbstractParser
                 // Try to get dates from the dictionary entries
                 try
                 {
-                    var dict = info.DocumentInformationDictionary;
-                    if (dict.TryGet(UglyToad.PdfPig.Tokens.NameToken.Create("CreationDate"), out var creationToken))
-                        createdDate = ParsePdfDate(creationToken?.ToString());
-                    if (dict.TryGet(UglyToad.PdfPig.Tokens.NameToken.Create("ModDate"), out var modToken))
-                        modifiedDate = ParsePdfDate(modToken?.ToString());
+                    // A PDF without an information dictionary has no dates to read.
+                    if (info.DocumentInformationDictionary is { } dict)
+                    {
+                        if (dict.TryGet(UglyToad.PdfPig.Tokens.NameToken.Create("CreationDate"), out var creationToken))
+                            createdDate = ParsePdfDate(creationToken?.ToString());
+                        if (dict.TryGet(UglyToad.PdfPig.Tokens.NameToken.Create("ModDate"), out var modToken))
+                            modifiedDate = ParsePdfDate(modToken?.ToString());
+                    }
                 }
                 catch
                 {

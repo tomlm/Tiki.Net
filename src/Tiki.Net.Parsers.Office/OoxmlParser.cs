@@ -6,7 +6,6 @@ using DocumentFormat.OpenXml.Wordprocessing;
 using Tiki.Documents;
 using Tiki.Mime;
 using Tiki.Parser;
-using Tiki.Documents;
 
 namespace Tiki.Parsers.Office;
 
